@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('商品(goods)列表')"/>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul>
+                        <li>
+                            <p>商品类别id：</p>
+                            <select name="categoryId" th:with="type=${@dict.getType('goods_category_id')}">
+                                <option value="">所有</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                        th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p>商品名称：</p>
+                            <input type="text" name="goodName"/>
+                        </li>
+                        <li>
+                            <p>原价：</p>
+                            <input type="text" name="originalPrice"/>
+                        </li>
+                        <li>
+                            <p>会员价：</p>
+                            <input type="text" name="membersPrice"/>
+                        </li>
+                        <li>
+                            <p>商品图片保存地址：</p>
+                            <input type="text" name="picture"/>
+                        </li>
+                        <li>
+                            <p>库存：</p>
+                            <input type="text" name="goodInventory"/>
+                        </li>
+                        <li>
+                            <p>状态 0 上架,1下架：</p>
+                            <select name="status" th:with="type=${@dict.getType('goods_status')}">
+                                <option value="">所有</option>
+                                <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
+                                        th:value="${dict.dictValue}"></option>
+                            </select>
+                        </li>
+                        <li>
+                            <p>销量：</p>
+                            <input type="text" name="sales"/>
+                        </li>
+                        <li>
+                            <p>商品权重：</p>
+                            <input type="text" name="goodsWeight"/>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="goods:goods:add">
+                <i class="fa fa-plus"></i> 添加
+            </a>
+            <a class="btn btn-primary single disabled" onclick="$.operate.edit()"
+               shiro:hasPermission="goods:goods:edit">
+                <i class="fa fa-edit"></i> 修改
+            </a>
+            <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()"
+               shiro:hasPermission="goods:goods:remove">
+                <i class="fa fa-remove"></i> 删除
+            </a>
+            <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="goods:goods:export">
+                <i class="fa fa-download"></i> 导出
+            </a>
+        </div>
+        <div class="col-sm-12 select-table table-striped">
+            <table id="bootstrap-table" data-mobile-responsive="true"></table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<script th:inline="javascript">
+    var editFlag = [[${@permission.hasPermi('goods:goods:edit')}]];
+    var removeFlag = [[${@permission.hasPermi('goods:goods:remove')}]];
+    var categoryIdDatas = [[${@dict.getType('goods_category_id')}]];
+    var statusDatas = [[${@dict.getType('goods_status')}]];
+    var prefix = ctx + "goods/goods";
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            createUrl: prefix + "/add",
+            updateUrl: prefix + "/edit/{id}",
+            removeUrl: prefix + "/remove",
+            exportUrl: prefix + "/export",
+            modalName: "商品(goods)",
+            columns: [{
+                checkbox: true
+            },
+                {
+                    field: 'goodId',
+                    title: '商品id',
+                    visible: false
+                },
+                {
+                    field: 'categoryId',
+                    title: '商品类别id',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(categoryIdDatas, value);
+                    }
+                },
+                {
+                    field: 'goodName',
+                    title: '商品名称'
+                },
+                {
+                    field: 'originalPrice',
+                    title: '原价'
+                },
+                {
+                    field: 'membersPrice',
+                    title: '会员价'
+                },
+                {
+                    field: 'picture',
+                    title: '商品图片',
+                    formatter: function (value, row, index) {
+                        return $.table.imageView(value);
+                    }
+                },
+                {
+                    field: 'goodInventory',
+                    title: '库存'
+                },
+                {
+                    field: 'status',
+                    title: '状态 0 上架,1下架',
+                    formatter: function (value, row, index) {
+                        return $.table.selectDictLabel(statusDatas, value);
+                    }
+                },
+                {
+                    field: 'sales',
+                    title: '销量'
+                },
+                {
+                    field: 'goodsWeight',
+                    title: '商品权重'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="$.operate.edit(\'' + row.goodId + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.goodId + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+        };
+        $.table.init(options);
+    });
+</script>
+</body>
+</html>
