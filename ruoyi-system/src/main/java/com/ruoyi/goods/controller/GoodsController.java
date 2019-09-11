@@ -1,4 +1,4 @@
-package com.ruoyi.web.controller.goods;
+package com.ruoyi.goods.controller;
 
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.config.Global;
@@ -6,6 +6,7 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.goods.domain.Goods;
@@ -86,22 +87,8 @@ public class GoodsController extends BaseController
     @PostMapping("/add")
     @ResponseBody
     public AjaxResult addSave(@RequestParam("picture") MultipartFile file, HttpServletRequest request) throws IOException {
-        String filePath = Global.getUploadPath();
-        Goods goods = new Goods();
-        goods.setCategoryId(Long.valueOf(request.getParameter("categoryId")));
-        goods.setGoodName(request.getParameter("goodName"));
-        goods.setOriginalPrice(Double.valueOf(request.getParameter("originalPrice")));
-        goods.setMembersPrice(Double.valueOf(request.getParameter("membersPrice")));
-        goods.setGoodInventory(Long.valueOf(request.getParameter("goodInventory")));
-        goods.setGoodsWeight(Long.valueOf(request.getParameter("goodsWeight")));
-        goods.setSales(Long.valueOf(request.getParameter("sales")));
-        goods.setStatus(request.getParameter("status"));
 
-
-        // 上传并返回新文件名称
-        String fileName = FileUploadUtils.upload(filePath, file);
-        goods.setPicture(fileName);
-        return toAjax(goodsService.insertGoods(goods));
+        return toAjax(goodsService.insertGoods(this.saveOrUpdate(file,request)));
     }
 
     /**
@@ -122,9 +109,8 @@ public class GoodsController extends BaseController
     @Log(title = "商品(goods)", businessType = BusinessType.UPDATE)
     @PostMapping("/edit")
     @ResponseBody
-    public AjaxResult editSave(Goods goods)
-    {
-        return toAjax(goodsService.updateGoods(goods));
+    public AjaxResult editSave(@RequestParam("picture") MultipartFile file, HttpServletRequest request) throws IOException {
+        return toAjax(goodsService.updateGoods(this.saveOrUpdate(file,request)));
     }
 
     /**
@@ -137,5 +123,47 @@ public class GoodsController extends BaseController
     public AjaxResult remove(String ids)
     {
         return toAjax(goodsService.deleteGoodsByIds(ids));
+    }
+
+
+    /**
+    * @Description         
+    * @Param 保存或修改商品及商品图片
+    * @return com.ruoyi.goods.domain.Goods
+    * @throws Exception 
+    * @Author cyh
+    * @Date  2019/9/11 22:15
+    **/
+    public Goods saveOrUpdate(MultipartFile file, HttpServletRequest request) throws IOException {
+        String filePath = Global.getUploadPath();
+        Goods goods = new Goods();
+        if(StringUtils.isNotNull(request.getParameter("goodId"))){
+            goods.setGoodId(Long.valueOf(request.getParameter("goodId")));
+        }
+
+        goods.setCategoryId(Long.valueOf(request.getParameter("categoryId")));
+        goods.setGoodName(request.getParameter("goodName"));
+        goods.setOriginalPrice(Double.valueOf(request.getParameter("originalPrice")));
+        goods.setMembersPrice(Double.valueOf(request.getParameter("membersPrice")));
+        if(StringUtils.isNotEmpty(request.getParameter("goodInventory"))){
+            goods.setGoodInventory(Long.valueOf(request.getParameter("goodInventory")));
+        }
+        if(StringUtils.isNotEmpty(request.getParameter("goodsWeight"))){
+            goods.setGoodsWeight(Long.valueOf(request.getParameter("goodsWeight")));
+        }
+        if(StringUtils.isNotEmpty(request.getParameter("sales"))){
+            goods.setSales(Long.valueOf(request.getParameter("sales")));
+        }
+        if(StringUtils.isNotEmpty(request.getParameter("status"))){
+            goods.setStatus(request.getParameter("status"));
+        }
+
+
+
+
+        // 上传并返回新文件名称
+        String fileName = FileUploadUtils.upload(filePath, file);
+        goods.setPicture(fileName);
+        return goods;
     }
 }

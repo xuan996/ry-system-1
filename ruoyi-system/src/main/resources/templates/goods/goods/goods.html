@@ -11,7 +11,7 @@
                 <div class="select-list">
                     <ul>
                         <li>
-                            <p>商品类别id：</p>
+                            <p>商品类别：</p>
                             <select name="categoryId" th:with="type=${@dict.getType('goods_category_id')}">
                                 <option value="">所有</option>
                                 <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
@@ -31,15 +31,11 @@
                             <input type="text" name="membersPrice"/>
                         </li>
                         <li>
-                            <p>商品图片保存地址：</p>
-                            <input type="text" name="picture"/>
-                        </li>
-                        <li>
                             <p>库存：</p>
                             <input type="text" name="goodInventory"/>
                         </li>
                         <li>
-                            <p>状态 0 上架,1下架：</p>
+                            <p>状态：</p>
                             <select name="status" th:with="type=${@dict.getType('goods_status')}">
                                 <option value="">所有</option>
                                 <option th:each="dict : ${type}" th:text="${dict.dictLabel}"
@@ -49,10 +45,6 @@
                         <li>
                             <p>销量：</p>
                             <input type="text" name="sales"/>
-                        </li>
-                        <li>
-                            <p>商品权重：</p>
-                            <input type="text" name="goodsWeight"/>
                         </li>
                         <li>
                             <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
@@ -142,7 +134,7 @@
                 },
                 {
                     field: 'status',
-                    title: '状态 0 上架,1下架',
+                    title: '状态',
                     formatter: function (value, row, index) {
                         return $.table.selectDictLabel(statusDatas, value);
                     }
@@ -150,10 +142,6 @@
                 {
                     field: 'sales',
                     title: '销量'
-                },
-                {
-                    field: 'goodsWeight',
-                    title: '商品权重'
                 },
                 {
                     title: '操作',

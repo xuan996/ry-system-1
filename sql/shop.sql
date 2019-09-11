@@ -7,7 +7,7 @@ create table goods (
   members_price  DECIMAL(19,2) not null comment '会员价',
   picture VARCHAR(256) default '' comment '商品图片保存地址',
   good_inventory int DEFAULT 0 comment '库存',
-  status VARCHAR(1) default '0' comment '状态 0 上架,1下架',
+  status VARCHAR(1) default '0' comment '状态',
   sales int DEFAULT '0' comment '销量',
   goods_weight int default 0 comment '商品权重',
   INDEX(good_name,category_id)
